@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+enum AssetStatus {
+  ACTIVE
+  INACTIVE
+  DISPOSED
+}
+
+enum InventoryType {
+  PURCHASE
+  ISSUE
+  ADJUSTMENT
+}
+
+enum ReturnReason {
+  UPGRADE
+  REPAIR
+  RESIGNATION
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id             String            @id @default(auto()) @map("_id") @db.ObjectId
+  firstName      String
+  lastName       String
+  email          String            @unique
+  password       String
+  role           Role              @default(USER)
+  status         Status            @default(ACTIVE)
+  mobileNumber   String            @unique
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  assetAssignments AssetAssignment[]
+}
+
+model AssetCategory {
+  id                  String     @id @default(auto()) @map("_id") @db.ObjectId
+  categoryName        String
+  categoryDescription String?
+  status              Status     @default(ACTIVE)
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+  assets              Asset[]
+}
+
+model Asset {
+  id               String            @id @default(auto()) @map("_id") @db.ObjectId
+  assetName        String
+  assetDescription String?
+  categoryId       String            @db.ObjectId
+  serialNumber     String            @unique
+  status           AssetStatus       @default(ACTIVE)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  assetCategory    AssetCategory     @relation(fields: [categoryId], references: [id])
+  inventories      Inventory[]
+  assetAssignments AssetAssignment[]
+}
+
+model Inventory {
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  assetId       String         @db.ObjectId
+  inventoryType InventoryType
+  quantity      Int            @default(0)
+  remarks       String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  asset         Asset          @relation(fields: [assetId], references: [id])
+}
+
+model AssetAssignment {
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String            @db.ObjectId
+  assetId       String         @db.ObjectId
+  issueDate     DateTime
+  returnDate    DateTime?
+  returnReason  String?
+  isReturn      Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  assignedTo    User?          @relation(fields: [userId], references: [id])
+  assignedAsset Asset?         @relation(fields: [assetId], references: [id])
+}
