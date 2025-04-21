@@ -5,7 +5,7 @@ A web-based asset management application built using **Next.js**, **Node.js**, *
 ## 🔗 Live Demo
 
 🌐 [View on Vercel](https://asset-management-system-six.vercel.app/)
-
+🔑 **Live Demo Admin Credentials:** Email: `admin@gmail.com`, Password: `Admin@0511`
 🧠 [GitHub Repository](https://github.com/Sans0511/asset-management-system.git/)
 
 ---
