@@ -68,6 +68,8 @@ export default function UserForm({
           setErrorMessage('An unexpected server error occurred.')
         }
       }
+    } finally {
+      setIsLoading(false)
     }
   }
 

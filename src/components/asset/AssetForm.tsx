@@ -19,7 +19,7 @@ type Props = {
 const initialFormData: AssetAttributes = {
   assetName: '',
   assetDescription: '',
-  categoryId: '', // Ensure categoryId is part of the formData
+  categoryId: '',
   serialNumber: '',
   status: 'ACTIVE',
 }

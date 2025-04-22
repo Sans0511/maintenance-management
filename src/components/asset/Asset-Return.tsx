@@ -75,18 +75,6 @@ export default function AssetReturnForm({
     }
   }
 
-  // const handleSubmit = (e: React.FormEvent) => {
-  //   e.preventDefault()
-  //   setIsLoading(true)
-
-  //   try {
-  //     onSubmit(formData)
-  //   } catch (error) {
-  //     console.error('Error submitting form:', error)
-  //   } finally {
-  //     setIsLoading(false)
-  //   }
-  // }
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} className="m-4 max-w-[700px]">
