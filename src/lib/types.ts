@@ -59,7 +59,15 @@ export type AssetAssignment = {
   assignedAsset?: AssetAttributes
 }
 
-// Optional: Define `ReturnReason` type if it's an enum or custom type
-export type ReturnReason = 'DAMAGED' | 'LOST' | 'EXPIRED' // Example, adjust based on your schema
+export type ReturnReason = 'DAMAGED' | 'LOST' | 'EXPIRED'
 
-// If the `User` and `Asset` are other Prisma models, you can define them similarly
+export type PaginationProps = {
+  showingFrom: number
+  showingTo: number
+  totalCount: number
+  itemsPerPage: number
+  setItemsPerPage: (value: number) => void
+  currentPage: number
+  setCurrentPage: (value: number) => void
+  totalPages: number
+}
