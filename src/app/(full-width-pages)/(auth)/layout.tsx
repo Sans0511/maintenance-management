@@ -14,12 +14,13 @@ export default function AuthLayout({
       <ThemeProvider>
         <div className="relative flex h-screen w-full flex-col justify-center sm:p-0 lg:flex-row dark:bg-gray-900">
           {children}
-          <div className="bg-brand-950 hidden h-full w-full items-center lg:grid lg:w-1/2 dark:bg-white/5">
-            <div className="relative z-1 flex items-center justify-center">
+          <div className="bg-brand-950 hidden h-full w-full lg:grid place-items-center lg:w-1/2 dark:bg-white/5">
+            <div className="relative z-1 flex h-full w-full items-center justify-center">
               {/* <!-- ===== Common Grid Shape Start ===== --> */}
               <GridShape />
-              <div className="flex max-w-xs flex-col items-center">
-                <h1 className="text-6xl text-white">Asset Management</h1>
+              <div className="flex  flex-col items-center">
+                <h1 className="text-5xl text-white items-center">Maintenance Management</h1>
+                <h1 className="text-5xl text-white items-center"> System</h1>
               </div>
             </div>
           </div>
