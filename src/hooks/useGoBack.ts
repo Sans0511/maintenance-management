@@ -2,7 +2,7 @@ import { useRouter } from 'next/navigation'
 
 const useGoBack = () => {
   const router = useRouter()
-
+console.log("fired")
   const goBack = () => {
     if (window.history.length > 1) {
       router.back() // Navigate to the previous route
