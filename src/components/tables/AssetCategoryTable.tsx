@@ -91,6 +91,9 @@ export default function AssetCategoryTable() {
                       Discription
                     </TableCell>
                     <TableCell isHeader className="table-heading">
+                      Parent Category
+                    </TableCell>
+                    <TableCell isHeader className="table-heading">
                       Status
                     </TableCell>
                     <TableCell isHeader className="table-heading-center">
@@ -109,6 +112,9 @@ export default function AssetCategoryTable() {
                       </TableCell>
                       <TableCell className="table-data">
                         {item.categoryDescription}
+                      </TableCell>
+                      <TableCell className="table-data">
+                        {item.parentCategory?.categoryName || '-'}
                       </TableCell>
 
                       <TableCell className="table-data">

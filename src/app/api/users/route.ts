@@ -130,8 +130,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Employee not found.' }, { status: 404 })
     }
 
-    // Ensure employee not already linked to a user
-    const existingByEmployee = await prisma.user.findUnique({ where: { employeeId } })
+    // Ensure employee not already linked to a user (employeeId is not unique)
+    const existingByEmployee = await prisma.user.findFirst({ where: { employeeId } })
     if (existingByEmployee) {
       return NextResponse.json({ error: 'A user for this employee already exists.' }, { status: 409 })
     }
@@ -205,7 +205,7 @@ export async function PATCH(req: NextRequest) {
       if (!employee) {
         return NextResponse.json({ error: 'Employee not found.' }, { status: 404 })
       }
-      const userForEmployee = await prisma.user.findUnique({ where: { employeeId } })
+      const userForEmployee = await prisma.user.findFirst({ where: { employeeId } })
       if (userForEmployee && userForEmployee.id !== id) {
         return NextResponse.json({ error: 'Another user is already linked to this employee.' }, { status: 409 })
       }
