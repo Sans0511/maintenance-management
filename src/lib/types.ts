@@ -116,13 +116,13 @@ export type ContractAttributes = {
 
 export type EmployeeAttributes = {
   id?: string
-  employeeId?: string
+  employeeId?: string | null
   employeeFirstName: string
   employeeLastName: string
-  departmentId?: string
+  departmentId?: string | null
   designationId: string
   employeeTypeId: string
-  contractId?: string
+  contractId?: string | null
   phoneNo: string
   status?: 'ACTIVE' | 'INACTIVE'
   createdAt?: string
