@@ -61,6 +61,11 @@ const navItemsAdmin: NavItem[] = [
   },
   {
     icon: <GridIcon />,
+    name: 'Locations',
+    path: '/locations',
+  },
+  {
+    icon: <GridIcon />,
     name: 'Contracts',
     path: '/contracts',
   },

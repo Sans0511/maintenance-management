@@ -88,6 +88,14 @@ export type DepartmentAttributes = {
   updatedAt?: string
 }
 
+export type LocationAttributes = {
+  id?: string
+  locationName: string
+  status?: 'ACTIVE' | 'INACTIVE'
+  createdAt?: string
+  updatedAt?: string
+}
+
 export type EmployeeTypeAttributes = {
   id?: string
   employeeTypeName: string
