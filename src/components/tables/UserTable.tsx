@@ -17,6 +17,7 @@ const initialFormData: UserData = {
   password: '',
   role: 'USER',
   status: 'ACTIVE',
+  employeeId: '',
 }
 
 export default function UserTable() {

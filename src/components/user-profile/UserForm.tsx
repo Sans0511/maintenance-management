@@ -4,7 +4,7 @@ import Input from '@/components/form/input/InputField'
 import Label from '@/components/form/Label'
 import { EyeCloseIcon, EyeIcon, ChevronDownIcon } from '@/icons'
 import Select from '@/components/form/Select'
-import { UserData } from '@/lib/types'
+import { UserData, EmployeeAttributes } from '@/lib/types'
 import { Modal } from '@/components/ui/modal'
 import Button from '../ui/button/Button'
 import axios from 'axios'
@@ -26,6 +26,7 @@ export default function UserForm({
   const [formData, setFormData] = useState<UserData>(inputData)
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const [employeeOptions, setEmployeeOptions] = useState<{ value: string; label: string }[]>([])
 
   useEffect(() => {
     setFormData(inputData)
@@ -34,6 +35,10 @@ export default function UserForm({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleEmployeeSelect = (value: string) => {
+    setFormData((prev) => ({ ...prev, employeeId: value }))
   }
 
   const handleSelectChange = (value: string) => {
@@ -56,7 +61,23 @@ export default function UserForm({
     const method = isEdit ? axios.patch : axios.post
 
     try {
-      await method(endpoint, formData)
+      if (isEdit) {
+        await method(endpoint, {
+          id: formData.id,
+          email: formData.email,
+          role: formData.role,
+          status: formData.status,
+          employeeId: formData.employeeId,
+        })
+      } else {
+        await method(endpoint, {
+          email: formData.email,
+          password: formData.password,
+          role: formData.role,
+          status: formData.status,
+          employeeId: formData.employeeId,
+        })
+      }
       console.log(`User ${isEdit ? 'updated' : 'created'} successfully`)
       onSubmit()
     } catch (error) {
@@ -83,6 +104,22 @@ export default function UserForm({
     { value: 'INACTIVE', label: 'Inactive' },
   ]
 
+  useEffect(() => {
+    const loadEmployees = async () => {
+      try {
+        const res = await axios.get(`/api/employees?skip=0&limit=1000`)
+        const opts = (res.data.employees || []).map((e: EmployeeAttributes) => ({
+          value: e.id as string,
+          label: `${e.employeeFirstName} ${e.employeeLastName} - ${e.phoneNo}`,
+        }))
+        setEmployeeOptions(opts)
+      } catch (err) {
+        console.error('Failed to load employees', err)
+      }
+    }
+    loadEmployees()
+  }, [])
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} className="m-4 max-w-[700px]">
       <div className="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 lg:p-11 dark:bg-gray-900">
@@ -94,32 +131,22 @@ export default function UserForm({
 
         <form onSubmit={handleOnSubmit}>
           <div className="space-y-5">
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-              <div>
-                <Label>
-                  First Name<span className="text-error-500">*</span>
-                </Label>
-                <Input
-                  type="text"
-                  name="firstName"
-                  placeholder="Enter your first name"
-                  value={formData.firstName}
+            <div>
+              <Label>
+                Select Employee<span className="text-error-500">*</span>
+              </Label>
+              <div className="relative">
+                <Select
+                  options={employeeOptions}
+                  placeholder="Select Employee"
+                  value={formData.employeeId || ''}
+                  onChange={handleEmployeeSelect}
+                  className="dark:bg-dark-900"
                   required
-                  onChange={handleChange}
                 />
-              </div>
-              <div>
-                <Label>
-                  Last Name<span className="text-error-500">*</span>
-                </Label>
-                <Input
-                  type="text"
-                  name="lastName"
-                  placeholder="Enter your last name"
-                  value={formData.lastName}
-                  required
-                  onChange={handleChange}
-                />
+                <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                  <ChevronDownIcon />
+                </span>
               </div>
             </div>
 
@@ -137,19 +164,7 @@ export default function UserForm({
               />
             </div>
 
-            <div>
-              <Label>
-                Mobile No<span className="text-error-500">*</span>
-              </Label>
-              <Input
-                type="text"
-                name="mobileNumber"
-                placeholder="Enter mobile number"
-                value={formData.mobileNumber}
-                required
-                onChange={handleChange}
-              />
-            </div>
+            {/* Mobile number removed: derived from Employee */}
 
             <div>
               <Label>Select User Role</Label>
