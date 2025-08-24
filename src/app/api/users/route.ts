@@ -69,6 +69,7 @@ export async function POST(req: NextRequest) {
       mobileNumber,
       status,
       designationId,
+      employeeTypeId,
     } = body
 
     // Validate required fields
@@ -80,7 +81,8 @@ export async function POST(req: NextRequest) {
       !mobileNumber ||
       !role ||
       !status ||
-      !designationId
+      !designationId ||
+      !employeeTypeId
     ) {
       return NextResponse.json(
         { error: 'All fields are required.' },
@@ -121,6 +123,7 @@ export async function POST(req: NextRequest) {
         mobileNumber,
         status,
         designation: { connect: { id: designationId } },
+        employeeType: { connect: { id: employeeTypeId } },
       },
     })
 
@@ -148,7 +151,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { id, firstName, lastName, email, role, mobileNumber, status } = body
+    const { id, firstName, lastName, email, role, mobileNumber, status, employeeTypeId } = body
 
     if (
       !id ||
@@ -204,6 +207,7 @@ export async function PATCH(req: NextRequest) {
         role,
         mobileNumber,
         status,
+        ...(employeeTypeId ? { employeeType: { connect: { id: employeeTypeId } } } : {}),
       },
     })
 
