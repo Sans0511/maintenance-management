@@ -80,6 +80,14 @@ export type DesignationAttributes = {
   updatedAt?: string
 }
 
+export type DepartmentAttributes = {
+  id?: string
+  departmentName: string
+  status?: 'ACTIVE' | 'INACTIVE'
+  createdAt?: string
+  updatedAt?: string
+}
+
 export type EmployeeTypeAttributes = {
   id?: string
   employeeTypeName: string

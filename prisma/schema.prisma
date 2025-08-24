@@ -121,6 +121,14 @@ model EmployeeType {
   users             User[]
 }
 
+model Department {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  departmentName String
+  status         Status   @default(ACTIVE)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
 model Contract {
   id            String   @id @default(auto()) @map("_id") @db.ObjectId
   contractName  String
