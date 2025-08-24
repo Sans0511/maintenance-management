@@ -13,6 +13,7 @@ const initialFormData: AssetCategoryAttributes = {
   categoryName: '',
   categoryDescription: '',
   status: 'ACTIVE',
+  parentCategoryId: null,
 }
 
 type Props = {
@@ -32,6 +33,7 @@ export default function AssetCategoryForm({
     useState<AssetCategoryAttributes>(initialFormData)
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const [categoryOptions, setCategoryOptions] = useState<{ value: string; label: string }[]>([])
 
   useEffect(() => {
     if (inputData) {
@@ -41,6 +43,28 @@ export default function AssetCategoryForm({
     }
     setErrorMessage('')
   }, [inputData, isOpen])
+
+  // Fetch categories to populate Parent Category select (simple list)
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await axios.get(`/api/asset-category?skip=0&limit=1000`)
+        const categories: Array<{ id: string; categoryName: string }> =
+          (res.data.assetCategories || []).map((c: { id: string; categoryName: string }) => ({
+            id: String(c.id),
+            categoryName: String(c.categoryName ?? ''),
+          }))
+
+        const options = categories
+          .filter((c) => c.id !== (inputData?.id ?? '')) // prevent self as parent
+          .map((c) => ({ value: c.id, label: c.categoryName }))
+        setCategoryOptions(options)
+      } catch {
+        // silently ignore for now
+      }
+    }
+    if (isOpen) fetchCategories()
+  }, [isOpen, inputData?.id])
 
   // Handle form field changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,6 +77,11 @@ export default function AssetCategoryForm({
     if (value === 'ACTIVE' || value === 'INACTIVE') {
       setFormData((prev) => ({ ...prev, status: value }))
     }
+  }
+
+  // Handle parent category select change
+  const handleParentCategorySelectChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, parentCategoryId: value || null }))
   }
 
   // Handle form submission
@@ -110,6 +139,23 @@ export default function AssetCategoryForm({
                 onChange={handleChange}
               />
             </div>
+
+            <div>
+              <Label>Parent Category (optional)</Label>
+              <div className="relative">
+                <Select
+                  options={[{ value: '', label: 'None' }, ...categoryOptions]}
+                  placeholder="Select Parent Category"
+                  value={formData.parentCategoryId || ''}
+                  onChange={handleParentCategorySelectChange}
+                  className="dark:bg-dark-900"
+                />
+                <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                  <ChevronDownIcon />
+                </span>
+              </div>
+            </div>
+
             <div>
               <Label>
                 Category Description<span className="text-error-500">*</span>

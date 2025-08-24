@@ -18,20 +18,32 @@ export type DecodedToken = {
 }
 
 export type AssetCategoryAttributes = {
-  id?: number
+  id?: string
   categoryName: string
   categoryDescription?: string
   status?: 'ACTIVE' | 'INACTIVE'
+  parentCategoryId?: string | null
+  // Optionally present if API aliases id
+  categoryId?: string
+  parentCategory?: {
+    id: string
+    categoryName: string
+  } | null
 }
 
 export type AssetAttributes = {
-  id?: number
+  id?: string
   assetName: string
   assetDescription?: string
   categoryId: string
   assetCategory?: {
     id: string
     categoryName: string
+  }
+  locationId?: string
+  location?: {
+    id: string
+    locationName: string
   }
   serialNumber?: string
   status: 'ACTIVE' | 'INACTIVE' | 'DISPOSED'
@@ -116,13 +128,13 @@ export type ContractAttributes = {
 
 export type EmployeeAttributes = {
   id?: string
-  employeeId?: string | null
+  employeeId?: string
   employeeFirstName: string
   employeeLastName: string
-  departmentId?: string | null
+  departmentId?: string
   designationId: string
   employeeTypeId: string
-  contractId?: string | null
+  contractId?: string
   phoneNo: string
   status?: 'ACTIVE' | 'INACTIVE'
   createdAt?: string

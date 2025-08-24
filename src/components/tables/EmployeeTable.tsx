@@ -10,13 +10,13 @@ import { Pencil } from 'lucide-react'
 import EmployeeForm from '@/components/employee/EmployeeForm'
 
 const initialFormData: EmployeeAttributes = {
-  employeeId: null,
+  employeeId: '',
   employeeFirstName: '',
   employeeLastName: '',
-  departmentId: null,
+  departmentId: '',
   designationId: '',
   employeeTypeId: '',
-  contractId: null,
+  contractId: '',
   phoneNo: '',
   status: 'ACTIVE',
 }

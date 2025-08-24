@@ -15,10 +15,12 @@ export async function GET(req: NextRequest) {
     }
 
     const { searchParams } = new URL(req.url)
-    const skip = parseInt(searchParams.get('skip') || '0')
-    const limit = parseInt(searchParams.get('limit') || '10')
+    const rawSkip = Number(searchParams.get('skip'))
+    const rawLimit = Number(searchParams.get('limit'))
+    const skip = Number.isFinite(rawSkip) && rawSkip > 0 ? Math.floor(rawSkip) : 0
+    const limit = Number.isFinite(rawLimit) && rawLimit > 0 ? Math.min(Math.floor(rawLimit), 100) : 10
 
-    const [assetCategories, total] = await Promise.all([
+    const [assetCategoriesRaw, total] = await Promise.all([
       prisma.assetCategory.findMany({
         skip,
         take: limit,
@@ -27,16 +29,27 @@ export async function GET(req: NextRequest) {
           id: true,
           categoryName: true,
           categoryDescription: true,
+          parentCategoryId: true,
           status: true,
           createdAt: true,
           updatedAt: true,
+          parentCategory: {
+            select: { id: true, categoryName: true },
+          },
         },
       }),
       prisma.assetCategory.count(),
     ])
 
+    const assetCategories = assetCategoriesRaw.map((c) => ({
+      ...c,
+      categoryId: c.id, // alias own primary key as categoryId
+    }))
+
     return NextResponse.json({ assetCategories, total }, { status: 200 })
   } catch (err: unknown) {
+    // Log full error for server diagnostics
+    console.error('GET /api/asset-category failed:', err)
     if (err instanceof Error) {
       return NextResponse.json({ error: err.message }, { status: 500 })
     }
@@ -59,7 +72,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { categoryName, categoryDescription, status } = body
+    const { categoryName, categoryDescription, status, parentCategoryId } = body
 
     if (!categoryName || !status) {
       return NextResponse.json(
@@ -84,6 +97,7 @@ export async function POST(req: NextRequest) {
         categoryName,
         categoryDescription,
         status,
+        parentCategoryId: parentCategoryId || null,
       },
     })
 
@@ -111,9 +125,9 @@ export async function PATCH(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { id, categoryName, categoryDescription, status } = body
+    const { id, categoryName, categoryDescription, status, parentCategoryId } = body
 
-    if (!id || !categoryName || !categoryDescription || !status) {
+    if (!id || !categoryName || !status) {
       return NextResponse.json(
         { error: 'All fields are required.' },
         { status: 400 }
@@ -135,6 +149,7 @@ export async function PATCH(req: NextRequest) {
         categoryName,
         categoryDescription,
         status,
+        parentCategoryId: parentCategoryId || null,
       },
     })
 

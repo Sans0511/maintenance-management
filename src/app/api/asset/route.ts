@@ -38,6 +38,12 @@ export async function GET(req: NextRequest) {
               categoryName: true,
             },
           },
+          location: {
+            select: {
+              id: true,
+              locationName: true,
+            },
+          },
         },
       }),
       prisma.asset.count(),
@@ -45,6 +51,8 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ assets, total }, { status: 200 })
   } catch (err: unknown) {
+    // Improved logging to help diagnose 500s
+    console.error('GET /api/asset failed:', err)
     if (err instanceof Error) {
       return NextResponse.json({ error: err.message }, { status: 500 })
     }
@@ -67,7 +75,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { assetName, assetDescription, categoryId, serialNumber, status } =
+    const { assetName, assetDescription, categoryId, locationId, serialNumber, status } =
       body
 
     if (
@@ -99,6 +107,7 @@ export async function POST(req: NextRequest) {
         assetName,
         assetDescription,
         categoryId,
+        ...(locationId ? { locationId } : {}),
         serialNumber,
         status,
       },
@@ -133,6 +142,7 @@ export async function PATCH(req: NextRequest) {
       assetName,
       assetDescription,
       categoryId,
+      locationId,
       serialNumber,
       status,
     } = body
@@ -163,6 +173,7 @@ export async function PATCH(req: NextRequest) {
         assetName,
         assetDescription,
         categoryId,
+        ...(locationId !== undefined ? { locationId: locationId || null } : {}),
         serialNumber,
         status,
       },

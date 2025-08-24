@@ -58,12 +58,6 @@ export default function EmployeeForm({ inputData, isOpen, onClose, onSubmit }: P
   }
 
   const setSel = (name: keyof EmployeeAttributes) => (value: string) => {
-    // Map empty string to null for nullable select fields
-    if (name === 'departmentId' || name === 'contractId') {
-      const normalized = value && value.trim() !== '' ? value : null
-      setFormData(prev => ({ ...prev, [name]: normalized as any }))
-      return
-    }
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
@@ -75,14 +69,7 @@ export default function EmployeeForm({ inputData, isOpen, onClose, onSubmit }: P
     const method = isEdit ? axios.patch : axios.post
 
     try {
-      const payload = {
-        ...formData,
-        employeeId:
-          typeof formData.employeeId === 'string' && formData.employeeId.trim() === ''
-            ? null
-            : formData.employeeId ?? null,
-      }
-      await method(endpoint, payload)
+      await method(endpoint, formData)
       onSubmit()
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -119,7 +106,7 @@ export default function EmployeeForm({ inputData, isOpen, onClose, onSubmit }: P
                 type="text"
                 name="employeeId"
                 placeholder="Enter employee ID"
-                value={formData.employeeId ?? ''}
+                value={formData.employeeId}
                 onChange={handleChange}
               />
             </div>

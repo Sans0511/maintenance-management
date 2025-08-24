@@ -41,11 +41,11 @@ model User {
   password       String
   role           Role              @default(USER)
   status         Status            @default(ACTIVE)
-  employeeId     String            @db.ObjectId @unique
+  employeeId     String?           @db.ObjectId
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
 
-  employee        Employee          @relation(fields: [employeeId], references: [id])
+  employee        Employee?         @relation(fields: [employeeId], references: [id])
   assetAssignments AssetAssignment[]
 }
 
@@ -53,6 +53,10 @@ model AssetCategory {
   id                  String     @id @default(auto()) @map("_id") @db.ObjectId
   categoryName        String
   categoryDescription String?
+  parentCategoryId    String?    @db.ObjectId
+  // Self relation: parent and subcategories
+  parentCategory      AssetCategory? @relation("CategoryToSubcategories", fields: [parentCategoryId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  subcategories       AssetCategory[] @relation("CategoryToSubcategories")
   status              Status     @default(ACTIVE)
   createdAt           DateTime   @default(now())
   updatedAt           DateTime   @updatedAt
@@ -63,12 +67,14 @@ model Asset {
   id               String            @id @default(auto()) @map("_id") @db.ObjectId
   assetName        String
   assetDescription String?
-  categoryId       String            @db.ObjectId
+  categoryId       String?           @db.ObjectId
+  locationId       String?           @db.ObjectId
   serialNumber     String            @unique
   status           AssetStatus       @default(ACTIVE)
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
-  assetCategory    AssetCategory     @relation(fields: [categoryId], references: [id])
+  assetCategory    AssetCategory?    @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  location         Location?         @relation(fields: [locationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   inventories      Inventory[]
   assetAssignments AssetAssignment[]
 }
@@ -81,7 +87,7 @@ model Inventory {
   remarks       String?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
-  asset         Asset          @relation(fields: [assetId], references: [id])
+  asset         Asset          @relation(fields: [assetId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model AssetAssignment {
@@ -94,8 +100,8 @@ model AssetAssignment {
   isReturn      Boolean        @default(false)
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
-  assignedTo    User?          @relation(fields: [userId], references: [id])
-  assignedAsset Asset?         @relation(fields: [assetId], references: [id])
+  assignedTo    User?          @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  assignedAsset Asset?         @relation(fields: [assetId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model Designation {
@@ -131,6 +137,7 @@ model Location {
   status        Status   @default(ACTIVE)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  assets        Asset[]
 }
 
 model Contract {
@@ -161,5 +168,5 @@ model Employee {
   designation  Designation @relation(fields: [designationId], references: [id])
   employeeType EmployeeType @relation(fields: [employeeTypeId], references: [id])
   contract     Contract?   @relation(fields: [contractId], references: [id])
-  user         User?
+  users        User[]
 }

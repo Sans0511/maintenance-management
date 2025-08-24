@@ -44,7 +44,11 @@ export default function AssetTable() {
   const showingTo = Math.min(currentPage * itemsPerPage, totalCount)
 
   const handleUpdate = (item: AssetAttributes) => {
-    setFormData({ ...item, categoryId: item.assetCategory?.id || '' })
+    setFormData({
+      ...item,
+      categoryId: item.assetCategory?.id || '',
+      locationId: item.location?.id || '',
+    })
     openModal()
   }
 
@@ -95,6 +99,9 @@ export default function AssetTable() {
                       Serial No
                     </TableCell>
                     <TableCell isHeader className="table-heading">
+                      Location
+                    </TableCell>
+                    <TableCell isHeader className="table-heading">
                       Status
                     </TableCell>
                     <TableCell isHeader className="table-heading-center">
@@ -119,6 +126,9 @@ export default function AssetTable() {
                       </TableCell>
                       <TableCell className="table-data">
                         {item.serialNumber}
+                      </TableCell>
+                      <TableCell className="table-data">
+                        {item.location?.locationName || '-'}
                       </TableCell>
 
                       <TableCell className="table-data">
