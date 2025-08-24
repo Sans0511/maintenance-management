@@ -18,10 +18,15 @@ export type DecodedToken = {
 }
 
 export type AssetCategoryAttributes = {
-  id?: number
+  id?: string
   categoryName: string
   categoryDescription?: string
   status?: 'ACTIVE' | 'INACTIVE'
+  parentCategoryId?: string | null
+  parentCategory?: {
+    id: string
+    categoryName: string
+  } | null
 }
 
 export type AssetAttributes = {
