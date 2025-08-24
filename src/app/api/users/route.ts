@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { authenticateUser } from '@/lib/middleware/auth'
 import bcrypt from 'bcryptjs'
+import type { Prisma } from '@prisma/client'
 
 export async function GET(req: NextRequest) {
   try {
@@ -20,7 +21,7 @@ export async function GET(req: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '10')
 
     // Use raw aggregation to safely exclude documents with null employeeId and join employee fields
-    const pipeline: any[] = [
+    const pipeline: Prisma.InputJsonValue[] = [
       { $match: { employeeId: { $ne: null } } },
       { $skip: skip },
       { $limit: limit },
@@ -47,18 +48,29 @@ export async function GET(req: NextRequest) {
       },
     ]
 
-    const usersAgg = (await prisma.user.aggregateRaw({ pipeline })) as unknown as any[]
+    type UserAggRow = {
+      id: string
+      email: string
+      role: 'USER' | 'ADMIN'
+      status: 'ACTIVE' | 'INACTIVE'
+      employeeId: string
+      firstName?: string | null
+      lastName?: string | null
+      mobileNumber?: string | null
+    }
+
+    const usersAgg = (await prisma.user.aggregateRaw({ pipeline })) as unknown as UserAggRow[]
 
     const countAgg = (await prisma.user.aggregateRaw({
       pipeline: [
         { $match: { employeeId: { $ne: null } } },
         { $count: 'total' },
       ],
-    })) as unknown as any[]
+    })) as unknown as { total: number }[]
 
     const total = countAgg?.[0]?.total ?? 0
 
-    const shaped = usersAgg.map((u: any) => ({
+    const shaped = usersAgg.map((u: UserAggRow) => ({
       id: u.id,
       employeeId: u.employeeId,
       firstName: u.firstName ?? '',
