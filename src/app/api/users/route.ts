@@ -60,8 +60,16 @@ export async function POST(req: NextRequest) {
 
     // Parse request body
     const body = await req.json()
-    const { firstName, lastName, email, password, role, mobileNumber, status } =
-      body
+    const {
+      firstName,
+      lastName,
+      email,
+      password,
+      role,
+      mobileNumber,
+      status,
+      designationId,
+    } = body
 
     // Validate required fields
     if (
@@ -71,7 +79,8 @@ export async function POST(req: NextRequest) {
       !password ||
       !mobileNumber ||
       !role ||
-      !status
+      !status ||
+      !designationId
     ) {
       return NextResponse.json(
         { error: 'All fields are required.' },
@@ -111,6 +120,7 @@ export async function POST(req: NextRequest) {
         role,
         mobileNumber,
         status,
+        designation: { connect: { id: designationId } },
       },
     })
 
