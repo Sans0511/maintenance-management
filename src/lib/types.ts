@@ -6,6 +6,7 @@ export type UserData = {
   password?: string
   role: 'USER' | 'ADMIN'
   mobileNumber: string
+  employeeId?: string
   createdAt?: string
   updatedAt?: string
   status?: 'ACTIVE' | 'INACTIVE'

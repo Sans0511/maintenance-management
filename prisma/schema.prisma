@@ -37,20 +37,15 @@ enum Role {
 
 model User {
   id             String            @id @default(auto()) @map("_id") @db.ObjectId
-  firstName      String
-  lastName       String
   email          String            @unique
   password       String
   role           Role              @default(USER)
   status         Status            @default(ACTIVE)
-  mobileNumber   String            @unique
-  designationId  String            @db.ObjectId
-  employeeTypeId String            @db.ObjectId
+  employeeId     String            @db.ObjectId @unique
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
 
-  designation     Designation       @relation(fields: [designationId], references: [id])
-  employeeType    EmployeeType      @relation(fields: [employeeTypeId], references: [id])
+  employee        Employee          @relation(fields: [employeeId], references: [id])
   assetAssignments AssetAssignment[]
 }
 
@@ -109,7 +104,6 @@ model Designation {
   status          Status   @default(ACTIVE)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
-  users           User[]
   employees       Employee[]
 }
 
@@ -119,7 +113,6 @@ model EmployeeType {
   status            Status   @default(ACTIVE)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
-  users             User[]
   employees         Employee[]
 }
 
@@ -168,4 +161,5 @@ model Employee {
   designation  Designation @relation(fields: [designationId], references: [id])
   employeeType EmployeeType @relation(fields: [employeeTypeId], references: [id])
   contract     Contract?   @relation(fields: [contractId], references: [id])
+  user         User?
 }

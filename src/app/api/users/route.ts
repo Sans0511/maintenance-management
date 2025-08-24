@@ -19,24 +19,58 @@ export async function GET(req: NextRequest) {
     const skip = parseInt(searchParams.get('skip') || '0')
     const limit = parseInt(searchParams.get('limit') || '10')
 
-    const users = await prisma.user.findMany({
-      skip,
-      take: limit,
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        email: true,
-        role: true,
-        mobileNumber: true,
-        status: true,
+    // Use raw aggregation to safely exclude documents with null employeeId and join employee fields
+    const pipeline: any[] = [
+      { $match: { employeeId: { $ne: null } } },
+      { $skip: skip },
+      { $limit: limit },
+      {
+        $lookup: {
+          from: 'Employee',
+          localField: 'employeeId',
+          foreignField: '_id',
+          as: 'employee',
+        },
       },
-    })
+      { $unwind: { path: '$employee', preserveNullAndEmptyArrays: true } },
+      {
+        $project: {
+          id: { $toString: '$_id' },
+          email: 1,
+          role: 1,
+          status: 1,
+          employeeId: { $toString: '$employeeId' },
+          firstName: '$employee.employeeFirstName',
+          lastName: '$employee.employeeLastName',
+          mobileNumber: '$employee.phoneNo',
+        },
+      },
+    ]
 
-    const total = await prisma.user.count()
+    const usersAgg = (await prisma.user.aggregateRaw({ pipeline })) as unknown as any[]
 
-    return NextResponse.json({ users, total }, { status: 200 })
+    const countAgg = (await prisma.user.aggregateRaw({
+      pipeline: [
+        { $match: { employeeId: { $ne: null } } },
+        { $count: 'total' },
+      ],
+    })) as unknown as any[]
+
+    const total = countAgg?.[0]?.total ?? 0
+
+    const shaped = usersAgg.map((u: any) => ({
+      id: u.id,
+      employeeId: u.employeeId,
+      firstName: u.firstName ?? '',
+      lastName: u.lastName ?? '',
+      email: u.email,
+      role: u.role,
+      mobileNumber: u.mobileNumber ?? '',
+      status: u.status,
+    }))
+    return NextResponse.json({ users: shaped, total }, { status: 200 })
   } catch (err: unknown) {
+    console.error('GET /api/users failed:', err)
     if (err instanceof Error) {
       return NextResponse.json({ error: err.message }, { status: 500 })
     }
@@ -60,34 +94,13 @@ export async function POST(req: NextRequest) {
 
     // Parse request body
     const body = await req.json()
-    const {
-      firstName,
-      lastName,
-      email,
-      password,
-      role,
-      mobileNumber,
-      status,
-      designationId,
-      employeeTypeId,
-    } = body
+    const { email, password, role, status, employeeId } = body as {
+      email?: string; password?: string; role?: 'USER' | 'ADMIN'; status?: 'ACTIVE' | 'INACTIVE'; employeeId?: string
+    }
 
     // Validate required fields
-    if (
-      !firstName ||
-      !lastName ||
-      !email ||
-      !password ||
-      !mobileNumber ||
-      !role ||
-      !status ||
-      !designationId ||
-      !employeeTypeId
-    ) {
-      return NextResponse.json(
-        { error: 'All fields are required.' },
-        { status: 400 }
-      )
+    if (!email || !password || !role || !status || !employeeId) {
+      return NextResponse.json({ error: 'email, password, role, status, employeeId are required.' }, { status: 400 })
     }
 
     // Check if user already exists by email
@@ -99,15 +112,16 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Check if mobile number already exists
-    const existingUserByMobileNumber = await prisma.user.findUnique({
-      where: { mobileNumber },
-    })
-    if (existingUserByMobileNumber) {
-      return NextResponse.json(
-        { error: 'User with that mobile number already exists.' },
-        { status: 409 }
-      )
+    // Ensure employee exists
+    const employee = await prisma.employee.findUnique({ where: { id: employeeId } })
+    if (!employee) {
+      return NextResponse.json({ error: 'Employee not found.' }, { status: 404 })
+    }
+
+    // Ensure employee not already linked to a user
+    const existingByEmployee = await prisma.user.findUnique({ where: { employeeId } })
+    if (existingByEmployee) {
+      return NextResponse.json({ error: 'A user for this employee already exists.' }, { status: 409 })
     }
 
     const hashedPassword = await bcrypt.hash(password, 10)
@@ -115,20 +129,17 @@ export async function POST(req: NextRequest) {
     // Create the new user in the database
     await prisma.user.create({
       data: {
-        firstName,
-        lastName,
         email,
         password: hashedPassword,
         role,
-        mobileNumber,
         status,
-        designation: { connect: { id: designationId } },
-        employeeType: { connect: { id: employeeTypeId } },
+        employee: { connect: { id: employeeId } },
       },
     })
 
     return NextResponse.json('User Created Sucessfully', { status: 201 })
   } catch (err: unknown) {
+    console.error('POST /api/users failed:', err)
     if (err instanceof Error) {
       return NextResponse.json({ error: err.message }, { status: 500 })
     }
@@ -151,21 +162,12 @@ export async function PATCH(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { id, firstName, lastName, email, role, mobileNumber, status, employeeTypeId } = body
+    const { id, email, role, status, employeeId } = body as {
+      id?: string; email?: string; role?: 'USER' | 'ADMIN'; status?: 'ACTIVE' | 'INACTIVE'; employeeId?: string
+    }
 
-    if (
-      !id ||
-      !firstName ||
-      !lastName ||
-      !email ||
-      !mobileNumber ||
-      !role ||
-      !status
-    ) {
-      return NextResponse.json(
-        { error: 'All fields are required.' },
-        { status: 400 }
-      )
+    if (!id || !email || !role || !status) {
+      return NextResponse.json({ error: 'id, email, role, status are required.' }, { status: 400 })
     }
 
     // Check if user exists
@@ -185,34 +187,31 @@ export async function PATCH(req: NextRequest) {
       }
     }
 
-    // Prevent mobile duplication (if mobile number is being changed)
-    if (mobileNumber !== existingUser.mobileNumber) {
-      const mobileTaken = await prisma.user.findUnique({
-        where: { mobileNumber },
-      })
-      if (mobileTaken) {
-        return NextResponse.json(
-          { error: 'User with that mobile number already exists.' },
-          { status: 409 }
-        )
+    // Optionally change linked employee
+    if (employeeId && employeeId !== existingUser.employeeId) {
+      const employee = await prisma.employee.findUnique({ where: { id: employeeId } })
+      if (!employee) {
+        return NextResponse.json({ error: 'Employee not found.' }, { status: 404 })
+      }
+      const userForEmployee = await prisma.user.findUnique({ where: { employeeId } })
+      if (userForEmployee && userForEmployee.id !== id) {
+        return NextResponse.json({ error: 'Another user is already linked to this employee.' }, { status: 409 })
       }
     }
 
     await prisma.user.update({
       where: { id },
       data: {
-        firstName,
-        lastName,
         email,
         role,
-        mobileNumber,
         status,
-        ...(employeeTypeId ? { employeeType: { connect: { id: employeeTypeId } } } : {}),
+        ...(employeeId ? { employee: { connect: { id: employeeId } } } : {}),
       },
     })
 
     return NextResponse.json('User data updated successfully', { status: 200 })
   } catch (err: unknown) {
+    console.error('PATCH /api/users failed:', err)
     if (err instanceof Error) {
       return NextResponse.json({ error: err.message }, { status: 500 })
     }
