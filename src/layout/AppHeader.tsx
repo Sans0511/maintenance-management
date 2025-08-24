@@ -82,7 +82,7 @@ const AppHeader: React.FC = () => {
 
           <Link href="/" className="lg:hidden">
             <h1 className="text-lg font-bold text-gray-900 dark:text-white">
-              Asset Management
+              Maintenance Management
             </h1>
           </Link>
 
