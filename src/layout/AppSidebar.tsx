@@ -45,10 +45,16 @@ const navItemsAdmin: NavItem[] = [
     path: '/inventory',
   },
   {
+    icon: <GridIcon />,
+    name: 'Designations',
+    path: '/designations',
+  },
+  {
     icon: <GroupIcon />,
     name: 'Users',
     path: '/users',
   },
+  
 ]
 
 const navItemsUser: NavItem[] = [
@@ -250,7 +256,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ role }) => {
         <Link href="/">
           {isExpanded || isHovered || isMobileOpen ? (
             <h1 className="text-center text-2xl font-bold text-gray-900 dark:text-white">
-              Asset Management
+              Maintenance Management System
             </h1>
           ) : (
             <span className="text-center text-lg font-semibold text-gray-900 dark:text-white">

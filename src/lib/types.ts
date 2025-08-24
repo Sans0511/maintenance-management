@@ -71,3 +71,11 @@ export type PaginationProps = {
   setCurrentPage: (value: number) => void
   totalPages: number
 }
+
+export type DesignationAttributes = {
+  id?: string
+  designationName: string
+  status?: 'ACTIVE' | 'INACTIVE'
+  createdAt?: string
+  updatedAt?: string
+}
