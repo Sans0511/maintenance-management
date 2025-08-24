@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Input from '@/components/form/input/InputField'
 import Label from '@/components/form/Label'
 import Select from '@/components/form/Select'
@@ -41,12 +41,11 @@ export default function EmployeeForm({ inputData, isOpen, onClose, onSubmit }: P
           axios.get('/api/employee-types?skip=0&limit=1000'),
           axios.get('/api/contracts?skip=0&limit=1000'),
         ])
-        setDeptOptions((dpt.data.departments || []).map((x: any) => ({ value: x.id, label: x.departmentName })))
-        setDesigOptions((dsg.data.designations || []).map((x: any) => ({ value: x.id, label: x.designationName })))
-        setTypeOptions((typ.data.employeeTypes || []).map((x: any) => ({ value: x.id, label: x.employeeTypeName })))
-        setContractOptions((ctr.data.contracts || []).map((x: any) => ({ value: x.id, label: x.contractName })))
+        setDeptOptions((dpt.data.departments || []).map((x: { id: string; departmentName: string }) => ({ value: x.id, label: x.departmentName })))
+        setDesigOptions((dsg.data.designations || []).map((x: { id: string; designationName: string }) => ({ value: x.id, label: x.designationName })))
+        setTypeOptions((typ.data.employeeTypes || []).map((x: { id: string; employeeTypeName: string }) => ({ value: x.id, label: x.employeeTypeName })))
+        setContractOptions((ctr.data.contracts || []).map((x: { id: string; contractName: string }) => ({ value: x.id, label: x.contractName })))
       } catch (e) {
-        // eslint-disable-next-line no-console
         console.error('Failed to fetch dropdown options', e)
       }
     }

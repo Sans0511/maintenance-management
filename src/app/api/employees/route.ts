@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
 
     const total = await prisma.employee.count()
 
-    const mapped = employees.map(e => ({
+    const mapped = employees.map((e: (typeof employees)[number]) => ({
       ...e,
       departmentName: e.department?.departmentName,
       designationName: e.designation?.designationName,
@@ -73,15 +73,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'employeeFirstName, employeeLastName, designationId, employeeTypeId, phoneNo, status are required.' }, { status: 400 })
     }
 
-    const orConds = [{ phoneNo } as { phoneNo: string }]
-    if (employeeId) orConds.push({ employeeId } as { employeeId: string })
-    const dup = await prisma.employee.findFirst({ where: { OR: orConds } })
+    const dup = await prisma.employee.findFirst({ where: { OR: employeeId ? [{ phoneNo }, { employeeId }] : [{ phoneNo }] } })
     if (dup) {
       return NextResponse.json({ error: 'Employee with same ID or phone already exists.' }, { status: 409 })
     }
 
     await prisma.employee.create({
-      data: { employeeId: employeeId || null as any, employeeFirstName, employeeLastName, departmentId: departmentId || null as any, designationId, employeeTypeId, contractId: contractId || null as any, phoneNo, status },
+      data: {
+        employeeId: employeeId ?? null,
+        employeeFirstName,
+        employeeLastName,
+        departmentId: departmentId ?? null,
+        designationId,
+        employeeTypeId,
+        contractId: contractId ?? null,
+        phoneNo,
+        status,
+      },
     })
 
     return NextResponse.json('Employee created successfully', { status: 201 })
@@ -115,9 +123,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     if ((employeeId && employeeId !== existing.employeeId) || phoneNo !== existing.phoneNo) {
-      const orConds = [{ phoneNo } as { phoneNo: string }]
-      if (employeeId) orConds.push({ employeeId } as { employeeId: string })
-      const dupe = await prisma.employee.findFirst({ where: { OR: orConds, NOT: { id } } })
+      const dupe = await prisma.employee.findFirst({ where: { OR: employeeId ? [{ phoneNo }, { employeeId }] : [{ phoneNo }], NOT: { id } } })
       if (dupe) {
         return NextResponse.json({ error: 'Employee with same ID or phone already exists.' }, { status: 409 })
       }
@@ -125,7 +131,17 @@ export async function PATCH(req: NextRequest) {
 
     await prisma.employee.update({
       where: { id },
-      data: { employeeId: employeeId ?? null as any, employeeFirstName, employeeLastName, departmentId: departmentId ?? null as any, designationId, employeeTypeId, contractId: contractId ?? null as any, phoneNo, status },
+      data: {
+        employeeId: employeeId ?? null,
+        employeeFirstName,
+        employeeLastName,
+        departmentId: departmentId ?? null,
+        designationId,
+        employeeTypeId,
+        contractId: contractId ?? null,
+        phoneNo,
+        status,
+      },
     })
 
     return NextResponse.json('Employee updated successfully', { status: 200 })
