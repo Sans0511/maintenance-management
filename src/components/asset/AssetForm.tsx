@@ -36,6 +36,10 @@ export default function AssetForm({
   const [categoryList, setCategoryList] = useState<
     { value: string; label: string }[]
   >([])
+  const [searchLocationName, setSearchLocationName] = useState('')
+  const [locationList, setLocationList] = useState<
+    { value: string; label: string }[]
+  >([])
   const [errorMessage, setErrorMessage] = useState('')
 
   // Update formData when inputData changes
@@ -77,6 +81,37 @@ export default function AssetForm({
     fetchAssetCategory()
   }, [serachCategoryName])
 
+  // Fetch locations (limited set) and filter client-side by searchLocationName
+  useEffect(() => {
+    const fetchLocations = async () => {
+      try {
+        const response = await axios.get(`/api/locations?skip=0&limit=50`)
+        const transformed = response.data.locations.map(
+          (loc: { id: string; locationName: string }) => ({
+            value: loc.id.toString(),
+            label: loc.locationName,
+          })
+        )
+        // client-side filter
+        const filtered = transformed.filter((opt: { label: string }) =>
+          opt.label.toLowerCase().includes(searchLocationName.toLowerCase())
+        )
+        setLocationList(filtered)
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          const responseError = error.response?.data?.error
+          if (responseError) {
+            setErrorMessage(responseError)
+          } else {
+            setErrorMessage('An unexpected server error occurred.')
+          }
+        }
+      }
+    }
+
+    fetchLocations()
+  }, [searchLocationName])
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
@@ -87,6 +122,14 @@ export default function AssetForm({
     setFormData((prev) => ({
       ...prev,
       categoryId: value, // Set categoryId based on selection
+    }))
+  }
+
+  // Handle location selection
+  const handleLocationSelectChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      locationId: value || undefined,
     }))
   }
 
@@ -183,6 +226,33 @@ export default function AssetForm({
                   placeholder="Select Option"
                   value={formData.categoryId || ''} // Bind categoryId to Select value
                   onChange={handleSelectChange}
+                  className="dark:bg-dark-900"
+                />
+                <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                  <ChevronDownIcon />
+                </span>
+              </div>
+            </div>
+
+            <div>
+              <Label>Select Location</Label>
+
+              {/* Search Input */}
+              <input
+                type="text"
+                placeholder="Search Locations"
+                className="mb-2 w-full rounded-md border p-2"
+                value={searchLocationName}
+                onChange={(e) => setSearchLocationName(e.target.value)}
+              />
+
+              {/* Select Box with Chevron Icon */}
+              <div className="relative">
+                <Select
+                  options={locationList}
+                  placeholder="Select Location (optional)"
+                  value={formData.locationId || ''}
+                  onChange={handleLocationSelectChange}
                   className="dark:bg-dark-900"
                 />
                 <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 dark:text-gray-400">
