@@ -38,6 +38,11 @@ export type AssetAttributes = {
     id: string
     categoryName: string
   }
+  locationId?: string
+  location?: {
+    id: string
+    locationName: string
+  }
   serialNumber?: string
   status: 'ACTIVE' | 'INACTIVE' | 'DISPOSED'
 }

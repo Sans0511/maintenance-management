@@ -65,11 +65,13 @@ model Asset {
   assetName        String
   assetDescription String?
   categoryId       String            @db.ObjectId
+  locationId       String?           @db.ObjectId
   serialNumber     String            @unique
   status           AssetStatus       @default(ACTIVE)
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   assetCategory    AssetCategory     @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  location         Location?         @relation(fields: [locationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   inventories      Inventory[]
   assetAssignments AssetAssignment[]
 }
@@ -132,6 +134,7 @@ model Location {
   status        Status   @default(ACTIVE)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  assets        Asset[]
 }
 
 model Contract {
