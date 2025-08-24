@@ -87,3 +87,12 @@ export type EmployeeTypeAttributes = {
   createdAt?: string
   updatedAt?: string
 }
+
+export type ContractAttributes = {
+  id?: string
+  contractName: string
+  sphoneNumber: string
+  status?: 'ACTIVE' | 'INACTIVE'
+  createdAt?: string
+  updatedAt?: string
+}

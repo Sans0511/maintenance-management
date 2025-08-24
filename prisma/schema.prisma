@@ -120,3 +120,12 @@ model EmployeeType {
   updatedAt         DateTime @updatedAt
   users             User[]
 }
+
+model Contract {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  contractName  String
+  sphoneNumber  String
+  status        Status   @default(ACTIVE)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
