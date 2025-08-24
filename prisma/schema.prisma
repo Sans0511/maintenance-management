@@ -129,6 +129,14 @@ model Department {
   updatedAt      DateTime @updatedAt
 }
 
+model Location {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  locationName  String
+  status        Status   @default(ACTIVE)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
 model Contract {
   id            String   @id @default(auto()) @map("_id") @db.ObjectId
   contractName  String
