@@ -50,6 +50,11 @@ const navItemsAdmin: NavItem[] = [
     path: '/designations',
   },
   {
+    icon: <GridIcon />,
+    name: 'Employee Types',
+    path: '/employee-types',
+  },
+  {
     icon: <GroupIcon />,
     name: 'Users',
     path: '/users',

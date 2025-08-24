@@ -79,3 +79,11 @@ export type DesignationAttributes = {
   createdAt?: string
   updatedAt?: string
 }
+
+export type EmployeeTypeAttributes = {
+  id?: string
+  employeeTypeName: string
+  status?: 'ACTIVE' | 'INACTIVE'
+  createdAt?: string
+  updatedAt?: string
+}
