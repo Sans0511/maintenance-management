@@ -58,11 +58,9 @@ export async function POST(req: NextRequest) {
     if (existing) {
       return NextResponse.json({ error: 'A designation with that name already exists.' }, { status: 409 })
     }
-    console.log("fired", existing)
-    let data = await prisma.designation.create({
+     await prisma.designation.create({
       data: { designationName, status },
     })
-console.log({data})
     return NextResponse.json('Designation created successfully', { status: 201 })
   } catch (err: unknown) {
     if (err instanceof Error) {
