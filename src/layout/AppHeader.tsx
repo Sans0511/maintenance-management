@@ -38,9 +38,9 @@ const AppHeader: React.FC = () => {
   }, [])
 
   return (
-    <header className="sticky top-0 z-99999 flex w-full border-gray-200 bg-white lg:border-b dark:border-gray-800 dark:bg-gray-900">
-      <div className="flex grow flex-col items-center justify-between lg:flex-row lg:px-6">
-        <div className="flex w-full items-center justify-between gap-2 border-b border-gray-200 px-3 py-3 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4 dark:border-gray-800">
+    <header className="sticky top-0 z-99999 flex w-full overflow-x-clip border-gray-200 bg-white px-4 lg:px-6 lg:border-b dark:border-gray-800 dark:bg-gray-900">
+      <div className="flex w-full max-w-screen-2xl grow flex-col items-center justify-between mx-auto lg:flex-row lg:px-6">
+        <div className="flex w-full items-center justify-between gap-2 border-b border-gray-200 px-3 py-3 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-6 lg:py-4 dark:border-gray-800">
           <button
             className="z-99999 h-10 w-10 items-center justify-center rounded-lg border-gray-200 text-gray-500 lg:flex lg:h-11 lg:w-11 lg:border dark:border-gray-800 dark:text-gray-400"
             onClick={handleToggle}
@@ -109,7 +109,7 @@ const AppHeader: React.FC = () => {
         <div
           className={`${
             isApplicationMenuOpen ? 'flex' : 'hidden'
-          } shadow-theme-md w-full items-center justify-between gap-4 px-5 py-4 lg:flex lg:justify-end lg:px-0 lg:shadow-none`}
+          } shadow-theme-md w-full min-w-0 items-center justify-between gap-3 pl-5 pr-3 py-4 lg:flex lg:justify-end lg:pl-0 lg:pr-6 lg:shadow-none`}
         >
           {/* <!-- User Area --> */}
           <UserDropdown />
