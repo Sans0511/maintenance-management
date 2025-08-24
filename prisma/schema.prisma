@@ -110,6 +110,7 @@ model Designation {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   users           User[]
+  employees       Employee[]
 }
 
 model EmployeeType {
@@ -119,6 +120,7 @@ model EmployeeType {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
   users             User[]
+  employees         Employee[]
 }
 
 model Department {
@@ -127,6 +129,7 @@ model Department {
   status         Status   @default(ACTIVE)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  employees      Employee[]
 }
 
 model Location {
@@ -144,4 +147,25 @@ model Contract {
   status        Status   @default(ACTIVE)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  employees     Employee[]
+}
+
+model Employee {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  employeeId        String?
+  employeeFirstName String
+  employeeLastName  String
+  departmentId      String?  @db.ObjectId
+  designationId     String   @db.ObjectId
+  employeeTypeId    String   @db.ObjectId
+  contractId        String?  @db.ObjectId
+  phoneNo           String   @unique
+  status            Status   @default(ACTIVE)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  department   Department? @relation(fields: [departmentId], references: [id])
+  designation  Designation @relation(fields: [designationId], references: [id])
+  employeeType EmployeeType @relation(fields: [employeeTypeId], references: [id])
+  contract     Contract?   @relation(fields: [contractId], references: [id])
 }
