@@ -112,3 +112,23 @@ export type ContractAttributes = {
   createdAt?: string
   updatedAt?: string
 }
+
+export type EmployeeAttributes = {
+  id?: string
+  employeeId?: string
+  employeeFirstName: string
+  employeeLastName: string
+  departmentId?: string
+  designationId: string
+  employeeTypeId: string
+  contractId?: string
+  phoneNo: string
+  status?: 'ACTIVE' | 'INACTIVE'
+  createdAt?: string
+  updatedAt?: string
+  // Optional denormalized fields for tables
+  departmentName?: string
+  designationName?: string
+  employeeTypeName?: string
+  contractName?: string
+}
