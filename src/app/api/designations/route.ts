@@ -58,8 +58,10 @@ export async function POST(req: NextRequest) {
     if (existing) {
       return NextResponse.json({ error: 'A designation with that name already exists.' }, { status: 409 })
     }
-     await prisma.designation.create({
-      data: { designationName, status },
+
+    const data = { designationName, status }
+    await prisma.designation.create({
+      data,
     })
     return NextResponse.json('Designation created successfully', { status: 201 })
   } catch (err: unknown) {
@@ -97,9 +99,10 @@ export async function PATCH(req: NextRequest) {
       }
     }
 
+    const data = { designationName, status }
     await prisma.designation.update({
       where: { id },
-      data: { designationName, status },
+      data,
     })
 
     return NextResponse.json('Designation updated successfully', { status: 200 })
