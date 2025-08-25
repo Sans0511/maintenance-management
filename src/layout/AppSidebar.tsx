@@ -8,7 +8,6 @@ import {
   ListIcon,
   ChevronDownIcon,
   HorizontaLDots,
-  DocsIcon,
   GroupIcon,
 } from '../icons/index'
 

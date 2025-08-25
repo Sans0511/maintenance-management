@@ -84,7 +84,8 @@ export default function SpareForm({ inputData, isOpen, onClose, onSubmit }: Prop
       onSubmit()
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        const responseError = (error.response?.data as any)?.error
+        type ApiError = { error?: string }
+        const responseError = (error.response?.data as ApiError)?.error
         if (responseError) setErrorMessage(responseError)
         else setErrorMessage('An unexpected server error occurred.')
       }
