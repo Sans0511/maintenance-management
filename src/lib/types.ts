@@ -145,3 +145,13 @@ export type EmployeeAttributes = {
   employeeTypeName?: string
   contractName?: string
 }
+
+export type SpareAttributes = {
+  id?: string
+  spareName: string
+  spareSpec?: string
+  uom: string
+  status?: 'ACTIVE' | 'INACTIVE'
+  createdAt?: string
+  updatedAt?: string
+}
