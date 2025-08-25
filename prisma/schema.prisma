@@ -1,5 +1,7 @@
 generator client {
   provider = "prisma-client-js"
+  // Explicit output path required starting Prisma 7
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -169,4 +171,14 @@ model Employee {
   employeeType EmployeeType @relation(fields: [employeeTypeId], references: [id])
   contract     Contract?   @relation(fields: [contractId], references: [id])
   users        User[]
+}
+
+model Spare {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  spareName  String
+  spareSpec  String?
+  uom        String
+  status     Status   @default(ACTIVE)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }

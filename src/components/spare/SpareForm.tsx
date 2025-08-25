@@ -1,0 +1,186 @@
+'use client'
+import React, { useEffect, useState } from 'react'
+import Input from '@/components/form/input/InputField'
+import Label from '@/components/form/Label'
+import { ChevronDownIcon } from '@/icons'
+import Select from '@/components/form/Select'
+import { Modal } from '@/components/ui/modal'
+import Button from '@/components/ui/button/Button'
+import axios from 'axios'
+import { SpareAttributes } from '@/lib/types'
+
+const initialFormData: SpareAttributes = {
+  spareName: '',
+  spareSpec: '',
+  uom: '',
+  status: 'ACTIVE',
+}
+
+type Props = {
+  inputData: SpareAttributes | undefined
+  isOpen: boolean
+  onClose: () => void
+  onSubmit: () => void
+}
+
+export default function SpareForm({ inputData, isOpen, onClose, onSubmit }: Props) {
+  const [formData, setFormData] = useState<SpareAttributes>(initialFormData)
+  const [isLoading, setIsLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
+  const uomOptions = [
+    { value: 'NOS', label: 'Number (Pieces)' },
+    { value: 'SET', label: 'Set' },
+    { value: 'PAIR', label: 'Pair' },
+    { value: 'BOX', label: 'Box' },
+    { value: 'PKT', label: 'Packet' },
+
+    { value: 'KG', label: 'Kilogram' },
+    { value: 'G', label: 'Gram' },
+    { value: 'MT', label: 'Metric Ton' },
+
+    { value: 'MTR', label: 'Meter' },
+    { value: 'CM', label: 'Centimeter' },
+    { value: 'MM', label: 'Millimeter' },
+    { value: 'FT', label: 'Feet' },
+    { value: 'IN', label: 'Inch' },
+
+    { value: 'LTR', label: 'Litre' },
+    { value: 'ML', label: 'Millilitre' },
+  ]
+
+  useEffect(() => {
+    if (inputData) {
+      setFormData(inputData)
+    } else {
+      setFormData(initialFormData)
+    }
+    setErrorMessage('')
+  }, [inputData, isOpen])
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleStatusSelectChange = (value: string) => {
+    if (value === 'ACTIVE' || value === 'INACTIVE') {
+      setFormData((prev) => ({ ...prev, status: value }))
+    }
+  }
+
+  const handleUomSelectChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, uom: value }))
+  }
+
+  const handleOnSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+    const isEdit = Boolean(formData.id)
+    const endpoint = `/api/spares`
+    const method = isEdit ? axios.patch : axios.post
+    try {
+      await method(endpoint, formData)
+      setFormData(initialFormData)
+      onSubmit()
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        type ApiError = { error?: string }
+        const responseError = (error.response?.data as ApiError)?.error
+        if (responseError) setErrorMessage(responseError)
+        else setErrorMessage('An unexpected server error occurred.')
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const statusOptions = [
+    { value: 'ACTIVE', label: 'Active' },
+    { value: 'INACTIVE', label: 'Inactive' },
+  ]
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} className="m-4 max-w-[700px]">
+      <div className="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 lg:p-11 dark:bg-gray-900">
+        <div className="mb-6 flex items-center justify-between">
+          <h1 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+            {formData?.id ? 'Update Spare' : 'Create Spare'}
+          </h1>
+        </div>
+
+        <form onSubmit={handleOnSubmit}>
+          <div className="space-y-5">
+            <div>
+              <Label>
+                Spare Name<span className="text-error-500">*</span>
+              </Label>
+              <Input
+                type="text"
+                name="spareName"
+                placeholder="Spare Name"
+                value={formData.spareName}
+                required
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <Label>Specification</Label>
+              <Input
+                type="text"
+                name="spareSpec"
+                placeholder="Specification"
+                value={formData.spareSpec || ''}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <Label>
+                UoM<span className="text-error-500">*</span>
+              </Label>
+              <div className="relative">
+                <Select
+                  options={uomOptions}
+                  placeholder="Select Unit of Measure"
+                  value={formData.uom}
+                  onChange={handleUomSelectChange}
+                  className="dark:bg-dark-900"
+                />
+                <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                  <ChevronDownIcon />
+                </span>
+              </div>
+            </div>
+
+            <div>
+              <Label>Status</Label>
+              <div className="relative">
+                <Select
+                  options={statusOptions}
+                  placeholder="Select Option"
+                  value={formData.status || 'ACTIVE'}
+                  onChange={handleStatusSelectChange}
+                  className="dark:bg-dark-900"
+                />
+                <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                  <ChevronDownIcon />
+                </span>
+              </div>
+            </div>
+
+            {errorMessage && (
+              <div className="text-error-500 mb-4 text-sm">{errorMessage}</div>
+            )}
+
+            <div>
+              <Button className="w-full" size="sm" type="submit" disabled={isLoading}>
+                {isLoading ? 'Submitting...' : 'Submit'}
+              </Button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </Modal>
+  )
+}

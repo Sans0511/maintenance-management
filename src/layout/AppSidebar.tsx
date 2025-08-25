@@ -8,7 +8,6 @@ import {
   ListIcon,
   ChevronDownIcon,
   HorizontaLDots,
-  DocsIcon,
   GroupIcon,
 } from '../icons/index'
 
@@ -36,43 +35,21 @@ const navItemsAdmin: NavItem[] = [
     subItems: [
       { name: 'Add Asset Category', path: '/asset-categoty', pro: false },
       { name: 'Add Asset', path: '/assets', pro: false },
+      { name: 'Spares', path: '/spares', pro: false },
       { name: 'Asset Assign', path: '/asset-assignment', pro: false },
     ],
   },
   {
-    icon: <DocsIcon />,
-    name: 'Inventory',
-    path: '/inventory',
-  },
-  {
-    icon: <GridIcon />,
-    name: 'Designations',
-    path: '/designations',
-  },
-  {
-    icon: <GridIcon />,
-    name: 'Employee Types',
-    path: '/employee-types',
-  },
-  {
-    icon: <GridIcon />,
-    name: 'Departments',
-    path: '/departments',
-  },
-  {
-    icon: <GridIcon />,
-    name: 'Locations',
-    path: '/locations',
-  },
-  {
-    icon: <GroupIcon />,
-    name: 'Employees',
-    path: '/employees',
-  },
-  {
-    icon: <GridIcon />,
-    name: 'Contracts',
-    path: '/contracts',
+    icon: <ListIcon />,
+    name: 'Admin Management',
+    subItems: [
+      { name: 'Designations', path: '/designations', pro: false },
+      { name: 'Employee Types', path: '/employee-types', pro: false },
+      { name: 'Departments', path: '/departments', pro: false },
+      { name: 'Employees', path: '/employees', pro: false },
+      { name: 'Locations', path: '/locations', pro: false },
+      { name: 'Contracts', path: '/contracts', pro: false },
+    ],
   },
   {
     icon: <GroupIcon />,
